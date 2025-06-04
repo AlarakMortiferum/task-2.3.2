@@ -1,68 +1,76 @@
 package ru.netology.testmode.test;
 
-import org.junit.jupiter.api.*;
+import io.restassured.http.ContentType;
+import org.junit.jupiter.api.Test;
 import ru.netology.testmode.data.DataGenerator;
 import ru.netology.testmode.data.DataGenerator.User;
 
-import static com.codeborne.selenide.Selenide.*;
-import static com.codeborne.selenide.Condition.*;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
 public class AuthTest {
 
-    @BeforeEach
-    void openPage() {
-        open("http://localhost:9999");
-    }
-
     @Test
-    void shouldLoginWithActiveUser() {
+    void shouldLoginSuccessfullyWithActiveUser() {
         User user = DataGenerator.getActiveUser();
 
-        $("[data-test-id=login] input").setValue(user.login);
-        $("[data-test-id=password] input").setValue(user.password);
-        $("[data-test-id=action-login]").click();
+        // Авторизация
+        given()
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post("http://localhost:9999/api/auth")
+                .then()
+                .statusCode(200);
 
-        // Проверка, что перешли на форму верификации
-        $("[data-test-id=code]").shouldBe(visible);
+        // Получение кода и верификация
+        var code = DataGenerator.getVerificationCode(user);
 
-        // Вводим верный код и отправляем
-        $("[data-test-id=code] input").setValue(DataGenerator.getVerificationCode(user));
-        $("[data-test-id=action-verify]").click();
-
-        // Проверяем, что открылась страница с картами (dashboard)
-        $("[data-test-id=dashboard]").shouldBe(visible);
+        given()
+                .contentType(ContentType.JSON)
+                .body(new DataGenerator.Verification(user.login, code))
+                .when()
+                .post("http://localhost:9999/api/auth/verification")
+                .then()
+                .statusCode(200);
     }
 
     @Test
     void shouldNotLoginWithBlockedUser() {
         User user = DataGenerator.getBlockedUser();
 
-        $("[data-test-id=login] input").setValue(user.login);
-        $("[data-test-id=password] input").setValue(user.password);
-        $("[data-test-id=action-login]").click();
-
-        $("[data-test-id=error-notification]").shouldHave(text("Пользователь заблокирован"));
+        given()
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post("http://localhost:9999/api/auth")
+                .then()
+                .statusCode(403);
     }
 
     @Test
     void shouldNotLoginWithWrongLogin() {
         User user = DataGenerator.getUserWithWrongLogin();
 
-        $("[data-test-id=login] input").setValue(user.login);
-        $("[data-test-id=password] input").setValue(user.password);
-        $("[data-test-id=action-login]").click();
-
-        $("[data-test-id=error-notification]").shouldHave(text("Ошибка! Неверно указан логин или пароль"));
+        given()
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post("http://localhost:9999/api/auth")
+                .then()
+                .statusCode(401);
     }
 
     @Test
     void shouldNotLoginWithWrongPassword() {
         User user = DataGenerator.getUserWithWrongPassword();
 
-        $("[data-test-id=login] input").setValue(user.login);
-        $("[data-test-id=password] input").setValue(user.password);
-        $("[data-test-id=action-login]").click();
-
-        $("[data-test-id=error-notification]").shouldHave(text("Ошибка! Неверно указан логин или пароль"));
+        given()
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post("http://localhost:9999/api/auth")
+                .then()
+                .statusCode(401);
     }
 }

@@ -18,10 +18,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Start SUT
+      - name: Start SUT in both default and test modes
         run: |
-          java -jar ./artifacts/app-mbank.jar &
-          sleep 15  # ждём пока приложение полностью запустится
+          java -jar ./artifacts/app-sut.jar &                             # обычный режим
+          java -jar ./artifacts/app-sut.jar --spring.profiles.active=test &  # тестовый режим
+          sleep 15  # ждём, пока оба экземпляра приложения поднимутся
 
       - name: Run tests with Gradle
         run: ./gradlew test --info -Dselenide.headless=true

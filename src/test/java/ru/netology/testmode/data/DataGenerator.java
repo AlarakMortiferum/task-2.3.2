@@ -29,6 +29,12 @@ public class DataGenerator {
         String status;
     }
 
+    @Value
+    public static class Verification {
+        String login;
+        String code;
+    }
+
     public static User createUser(String status) {
         User user = new User(faker.name().username(), faker.internet().password(), status);
         given()
@@ -51,11 +57,23 @@ public class DataGenerator {
 
     public static User getUserWithWrongLogin() {
         User user = getActiveUser();
-        return new User("wrong_" + user.getLogin(), user.getPassword(), "active");
+        return new User("wrong_" + user.getLogin(), user.getPassword(), user.getStatus());
     }
 
     public static User getUserWithWrongPassword() {
         User user = getActiveUser();
-        return new User(user.getLogin(), "wrong_password", "active");
+        return new User(user.getLogin(), "wrong_password", user.getStatus());
+    }
+
+    public static String getVerificationCode(User user) {
+        return given()
+                .spec(requestSpec)
+                .queryParam("login", user.getLogin())
+                .when()
+                .get("/api/system/verification")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("code");
     }
 }
