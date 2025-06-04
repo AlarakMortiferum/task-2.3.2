@@ -22,9 +22,15 @@ public class AuthTest {
         $("[data-test-id=password] input").setValue(user.password);
         $("[data-test-id=action-login]").click();
 
-        $("[data-test-id=error-notification]")
-                .shouldBe(visible)
-                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
+        // Проверка, что перешли на форму верификации
+        $("[data-test-id=code]").shouldBe(visible);
+
+        // Вводим верный код и отправляем
+        $("[data-test-id=code] input").setValue(DataGenerator.getVerificationCode(user));
+        $("[data-test-id=action-verify]").click();
+
+        // Проверяем, что открылась страница с картами (dashboard)
+        $("[data-test-id=dashboard]").shouldBe(visible);
     }
 
     @Test
