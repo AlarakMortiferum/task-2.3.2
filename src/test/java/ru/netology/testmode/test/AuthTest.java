@@ -22,7 +22,9 @@ public class AuthTest {
         $("[data-test-id=password] input").setValue(user.password);
         $("[data-test-id=action-login]").click();
 
-        $("[data-test-id=dashboard]").shouldBe(visible);
+        $("[data-test-id=error-notification]")
+                .shouldBe(visible)
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import lombok.Value;
 
 import static io.restassured.RestAssured.given;
 
@@ -21,16 +22,11 @@ public class DataGenerator {
             .accept(ContentType.JSON)
             .log().all();
 
+    @Value
     public static class User {
-        public final String login;
-        public final String password;
-        public final String status;
-
-        public User(String login, String password, String status) {
-            this.login = login;
-            this.password = password;
-            this.status = status;
-        }
+        String login;
+        String password;
+        String status;
     }
 
     public static User createUser(String status) {
@@ -55,11 +51,11 @@ public class DataGenerator {
 
     public static User getUserWithWrongLogin() {
         User user = getActiveUser();
-        return new User("wrong_" + user.login, user.password, "active");
+        return new User("wrong_" + user.getLogin(), user.getPassword(), "active");
     }
 
     public static User getUserWithWrongPassword() {
         User user = getActiveUser();
-        return new User(user.login, "wrong_password", "active");
+        return new User(user.getLogin(), "wrong_password", "active");
     }
 }

@@ -10,17 +10,15 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
     testImplementation 'com.codeborne:selenide:6.19.1'
-
     // JUnit
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
-
     // Rest Assured
     testImplementation 'io.rest-assured:rest-assured:5.5.0'
-
     // Gson
     testImplementation 'com.google.code.gson:gson:2.10.1'
-
     // Faker
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
 }
