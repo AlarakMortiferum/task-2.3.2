@@ -18,11 +18,20 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Start SUT in both default and test modes
+      - name: Start SUT in test mode
         run: |
-          java -jar ./artifacts/app-sut.jar &                             # обычный режим
-          java -jar ./artifacts/app-sut.jar --spring.profiles.active=test &  # тестовый режим
-          sleep 15  # ждём, пока оба экземпляра приложения поднимутся
+          java -jar ./artifacts/app-sut.jar --server.port=8080 --spring.profiles.active=test &
+          sleep 5
+
+      - name: Wait for SUT to start
+        run: |
+          until curl -s http://localhost:8080; do
+            sleep 1
+          done
 
       - name: Run tests with Gradle
         run: ./gradlew test --info -Dselenide.headless=true
+
+      - name: Stop SUT
+        if: always()
+        run: pkill -f 'java -jar ./artifacts/app-sut.jar'

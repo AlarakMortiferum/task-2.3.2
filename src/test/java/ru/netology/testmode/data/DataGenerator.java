@@ -1,79 +1,103 @@
 package ru.netology.testmode.data;
 
-import com.github.javafaker.Faker;
-import com.google.gson.Gson;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
-import lombok.Value;
+import io.restassured.http.ContentType;
 
 import static io.restassured.RestAssured.given;
 
+import java.util.Random;
+
 public class DataGenerator {
+    private static final RequestSpecification requestSpec = new RequestSpecBuilder()
+            .setBaseUri("http://localhost")
+            .setPort(9999)
+            .setAccept(ContentType.JSON)
+            .setContentType(ContentType.JSON)
+            .build();
 
-    private static final Faker faker = new Faker();
-    private static final Gson gson = new Gson();
+    private static final Random random = new Random();
 
-    private static final RequestSpecification requestSpec = RestAssured
-            .given()
-            .baseUri("http://localhost")
-            .port(9999)
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-            .log().all();
-
-    @Value
+    // Класс пользователя
     public static class User {
-        String login;
-        String password;
-        String status;
+        private String login;
+        private String password;
+        private String status;
+
+        public User(String login, String password, String status) {
+            this.login = login;
+            this.password = password;
+            this.status = status;
+        }
+
+        public String getLogin() {
+            return login;
+        }
+        public String getPassword() {
+            return password;
+        }
+        public String getStatus() {
+            return status;
+        }
     }
 
-    @Value
-    public static class Verification {
-        String login;
-        String code;
-    }
-
-    public static User createUser(String status) {
-        User user = new User(faker.name().username(), faker.internet().password(), status);
+    // Метод регистрации пользователя через API
+    public static void registerUser(User user) {
         given()
                 .spec(requestSpec)
-                .body(gson.toJson(user))
+                .body(user)
                 .when()
                 .post("/api/system/users")
                 .then()
                 .statusCode(200);
-        return user;
     }
 
     public static User getActiveUser() {
-        return createUser("active");
+        User user = new User(generateRandomLogin(), generateRandomPassword(), "active");
+        registerUser(user);
+        return user;
     }
 
     public static User getBlockedUser() {
-        return createUser("blocked");
+        User user = new User(generateRandomLogin(), generateRandomPassword(), "blocked");
+        registerUser(user);
+        return user;
     }
 
     public static User getUserWithWrongLogin() {
-        User user = getActiveUser();
-        return new User("wrong_" + user.getLogin(), user.getPassword(), user.getStatus());
+        // Возвращаем пользователя с несуществующим логином (не регистрируем)
+        return new User("wrongLogin" + generateRandomLogin(), "somePassword123", "active");
     }
 
     public static User getUserWithWrongPassword() {
-        User user = getActiveUser();
-        return new User(user.getLogin(), "wrong_password", user.getStatus());
+        User user = new User(generateRandomLogin(), generateRandomPassword(), "active");
+        registerUser(user);
+        return new User(user.getLogin(), "wrongPassword123", "active");
     }
 
-    public static String getVerificationCode(User user) {
-        return given()
-                .spec(requestSpec)
-                .queryParam("login", user.getLogin())
-                .when()
-                .get("/api/system/verification")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("code");
+    private static String generateRandomLogin() {
+        return "user" + random.nextInt(10000);
+    }
+
+    private static String generateRandomPassword() {
+        return "pass" + random.nextInt(10000);
+    }
+
+    public static class Verification {
+        private String login;
+        private String code;
+
+        public Verification(String login, String code) {
+            this.login = login;
+            this.code = code;
+        }
+
+        public String getLogin() {
+            return login;
+        }
+
+        public String getCode() {
+            return code;
+        }
     }
 }

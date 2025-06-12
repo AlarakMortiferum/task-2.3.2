@@ -5,11 +5,16 @@ plugins {
 group = 'ru.netology'
 version = '1.0-SNAPSHOT'
 
+sourceCompatibility = 11
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    testImplementation 'commons-io:commons-io:2.11.0'
+    testImplementation 'io.github.bonigarcia:webdrivermanager:5.6.3'
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.11.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testImplementation 'com.codeborne:selenide:6.19.1'
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
@@ -19,6 +24,12 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
     testImplementation 'org.slf4j:slf4j-simple:2.0.3'
 }
+
 test {
     useJUnitPlatform()
+    systemProperty 'selenide.headless', 'true'
+    systemProperty 'chromeoptions.args', '--remote-allow-origins=*'
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }

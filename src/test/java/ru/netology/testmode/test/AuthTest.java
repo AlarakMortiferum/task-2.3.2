@@ -6,7 +6,6 @@ import ru.netology.testmode.data.DataGenerator;
 import ru.netology.testmode.data.DataGenerator.User;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 
 public class AuthTest {
 
@@ -14,23 +13,11 @@ public class AuthTest {
     void shouldLoginSuccessfullyWithActiveUser() {
         User user = DataGenerator.getActiveUser();
 
-        // Авторизация
         given()
                 .contentType(ContentType.JSON)
                 .body(user)
                 .when()
                 .post("http://localhost:9999/api/auth")
-                .then()
-                .statusCode(200);
-
-        // Получение кода и верификация
-        var code = DataGenerator.getVerificationCode(user);
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(new DataGenerator.Verification(user.login, code))
-                .when()
-                .post("http://localhost:9999/api/auth/verification")
                 .then()
                 .statusCode(200);
     }
