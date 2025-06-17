@@ -1,24 +1,39 @@
-name: CI
+name: Run tests
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
-      - name: Build with Gradle
-        run: ./gradlew clean build
+          distribution: 'temurin'
+
       - name: Run SUT
--        run: java -jar app-deadline.jar --spring.profiles.active=test --server.port=8080 &
-+        run: java -jar app-ibank.jar -Pprofile=test &
-                - name: Run UI tests
-                run: |
-                  cd src/test/java
-                  mvn test
+        run: java -jar artifacts/app-ibank.jar &
+
+      - name: Wait for SUT to start
+        run: sleep 15
+
+      - name: Run tests
+        run: ./gradlew clean test
+
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: build/reports/tests/test
