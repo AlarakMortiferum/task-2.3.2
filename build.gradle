@@ -2,6 +2,14 @@ plugins {
     id 'java'
 }
 
+def testProfile = project.hasProperty('profile') ? project.property('profile') : 'default'
+
+tasks.named('bootRun') {
+    if (testProfile == 'test') {
+        systemProperty 'spring.profiles.active', 'test'
+    }
+}
+
 group = 'ru.netology'
 version = '1.0-SNAPSHOT'
 
