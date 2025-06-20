@@ -28,15 +28,5 @@ jobs:
       - name: Start SUT in test mode
         run: java -jar artifacts/app-ibank.jar -P:profile=test &
 
-      - name: Wait for application to start
-        run: sleep 15
-
       - name: Run UI tests
         run: ./gradlew clean test --info -Dselenide.headless=true
-
-      - name: Archive test report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-report
-          path: build/reports/tests/test

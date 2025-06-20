@@ -16,21 +16,19 @@ repositories {
 }
 
 dependencies {
-    // UI-тесты на Selenide
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testImplementation 'com.codeborne:selenide:6.12.3'
     testImplementation 'org.slf4j:slf4j-simple:2.0.3'
 
-    // JDBC-драйвер для чтения кодов из БД
-    testImplementation 'mysql:mysql-connector-java:8.0.32'
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
 
-    // Lombok (если используется)
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    testCompileOnly("org.projectlombok:lombok:1.18.38")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 }
 
 test {
     useJUnitPlatform()
-    // Управление headless режимом через -Dselenide.headless
-    systemProperty 'selenide.headless', System.getProperty('selenide.headless', 'true')
+    systemProperty 'selenide.headless', System.getProperty('selenide.headless')
+    systemProperty 'chromeoptions.prefs', System.getProperty('chromeoptions.prefs', "profile.password_manager_leak_detection=false")
 }
