@@ -3,7 +3,7 @@ package ru.netology.shop;
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import patterns.pages.LoginPage;
+import ru.netology.shop.pages.LoginPage;
 import ru.netology.testmode.data.DataHelper;
 
 import static com.codeborne.selenide.Selenide.open;
@@ -12,21 +12,15 @@ public class LoginTest {
 
     @BeforeAll
     static void setUpAll() {
-        // Базовый URL и порт
-        Configuration.baseUrl = "http://localhost";
-        Configuration.port = 9999;
-        // Чтобы браузер не открывался визуально
+        Configuration.baseUrl = "http://localhost:9999";
         Configuration.headless = true;
-        // Не держать окно открытым после теста
         Configuration.holdBrowserOpen = false;
-        // Короткие таймауты для быстрого фейла
         Configuration.timeout = 5000;
     }
 
     @Test
     void shouldLoginActiveUser() {
-        var user = DataHelper.getActiveUser();
-
+        var user = DataHelper.getRegisteredActiveUser();
         open("/login");
         new LoginPage()
                 .login(user.getLogin(), user.getPassword())
@@ -35,8 +29,7 @@ public class LoginTest {
 
     @Test
     void shouldNotLoginBlockedUser() {
-        var user = DataHelper.getBlockedUser();
-
+        var user = DataHelper.getRegisteredBlockedUser();
         open("/login");
         new LoginPage()
                 .login(user.getLogin(), user.getPassword())
@@ -45,8 +38,7 @@ public class LoginTest {
 
     @Test
     void shouldNotLoginUnregisteredUser() {
-        var user = DataHelper.getRandomUser();
-
+        var user = DataHelper.getUnregisteredUser();
         open("/login");
         new LoginPage()
                 .login(user.getLogin(), user.getPassword())

@@ -66,17 +66,35 @@ public class DataHelper {
         return new User(login, password);
     }
 
-    /** Возвращает и регистрирует в системе активного пользователя */
     public static User getRegisteredActiveUser() {
         return registerUser("active");
     }
 
-    /** Возвращает и регистрирует в системе заблокированного пользователя */
     public static User getRegisteredBlockedUser() {
         return registerUser("blocked");
     }
+    public static User getActiveUser() {
+        return getRegisteredActiveUser();
+    }
 
-    /** Возвращает случайного незарегистрированного пользователя */
+    public static User getBlockedUser() {
+        return getRegisteredBlockedUser();
+    }
+
+    public static User getRandomUser() {
+        return getUnregisteredUser();
+    }
+
+    public static User getWrongLoginUser() {
+        User user = getRegisteredActiveUser();
+        return new User("wrongLogin", user.getPassword());
+    }
+
+    public static User getWrongPasswordUser() {
+        User user = getRegisteredActiveUser();
+        return new User(user.getLogin(), "wrongPassword");
+    }
+
     public static User getUnregisteredUser() {
         String login = "user" + rnd.nextInt(10_000);
         String password = "pass" + rnd.nextInt(10_000);

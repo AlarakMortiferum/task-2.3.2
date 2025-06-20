@@ -1,34 +1,24 @@
-package patterns.pages;
+package ru.netology.shop.pages;
 
-import com.codeborne.selenide.SelenideElement;
-
-import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selectors.byName;
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Condition.*;
 
 public class LoginPage {
-    private SelenideElement loginField = $(byName("login"));
-    private SelenideElement passwordField = $(byName("password"));
-    private SelenideElement submitButton = $("button[type='button']");
 
-    public void openPage() {
-        open("http://localhost:9999");
+    public LoginPage login(String login, String password) {
+        $("[data-test-id=login] input").setValue(login);
+        $("[data-test-id=password] input").setValue(password);
+        $("[data-test-id=action-login]").click();
+        return this;
     }
 
-    public void login(String login, String password) {
-        loginField.setValue(login);
-        passwordField.setValue(password);
-        submitButton.click();
+    public LoginPage shouldSeeDashboard() {
+        $("h2").shouldHave(text("Личный кабинет"));
+        return this;
     }
 
-    public void shouldSeeDashboard() {
-        $("h2").shouldBe(visible).shouldHave(text("Личный кабинет"));
-    }
-
-    public void shouldSeeError(String message) {
-        $("[data-test-id=error-notification]")
-                .shouldBe(visible)
-                .shouldHave(text(message));
+    public LoginPage shouldSeeError(String message) {
+        $(".notification__content").shouldHave(text(message));
+        return this;
     }
 }
