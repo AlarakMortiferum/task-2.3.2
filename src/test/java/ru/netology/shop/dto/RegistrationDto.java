@@ -1,4 +1,4 @@
-package ru.netology.shop;
+package ru.netology.shop.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

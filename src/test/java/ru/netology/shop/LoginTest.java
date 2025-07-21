@@ -3,7 +3,8 @@ package ru.netology.shop;
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.time.Duration;
+import ru.netology.shop.data.DataHelper;
+import ru.netology.shop.dto.RegistrationDto;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
@@ -18,68 +19,56 @@ public class LoginTest {
 
     @Test
     void shouldLoginWithActiveUser() {
-        // Регистрируем активного пользователя через API
-        RegistrationDto activeUser = new RegistrationDto("vasya", "qwerty123", "active");
+        RegistrationDto activeUser = DataHelper.getActiveUser();
         ApiHelper.registerUser(activeUser);
 
-        // Выполняем вход через UI
         $("[data-test-id=login] input").setValue(activeUser.getLogin());
         $("[data-test-id=password] input").setValue(activeUser.getPassword());
         $("[data-test-id=action-login]").click();
 
-        // Проверяем успешный вход
-        $("[data-test-id=dashboard]").shouldBe(visible, Duration.ofSeconds(10))
+        $("[data-test-id=dashboard]").shouldBe(visible)
                 .shouldHave(text("Личный кабинет"));
     }
 
     @Test
     void shouldNotLoginWithBlockedUser() {
-        // Регистрируем заблокированного пользователя
-        RegistrationDto blockedUser = new RegistrationDto("petya", "qwerty123", "blocked");
+        RegistrationDto blockedUser = DataHelper.getBlockedUser();
         ApiHelper.registerUser(blockedUser);
 
-        // Пытаемся войти
         $("[data-test-id=login] input").setValue(blockedUser.getLogin());
         $("[data-test-id=password] input").setValue(blockedUser.getPassword());
         $("[data-test-id=action-login]").click();
 
-        // Проверяем сообщение об ошибке
         $("[data-test-id=error-notification]")
-                .shouldBe(visible, Duration.ofSeconds(5))
-                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
+                .shouldBe(visible)
+                .shouldHave(text("Неверные данные для входа"));
     }
 
     @Test
     void shouldNotLoginWithWrongLogin() {
-        // Регистрируем активного пользователя
-        RegistrationDto validUser = new RegistrationDto("vasya", "qwerty123", "active");
+        RegistrationDto validUser = DataHelper.getActiveUser();
         ApiHelper.registerUser(validUser);
 
-        // Пытаемся войти с неверным логином
-        $("[data-test-id=login] input").setValue("invalid_login");
+        $("[data-test-id=login] input").setValue(DataHelper.getInvalidLogin());
         $("[data-test-id=password] input").setValue(validUser.getPassword());
         $("[data-test-id=action-login]").click();
 
-        // Проверяем ошибку
         $("[data-test-id=error-notification]")
-                .shouldBe(visible, Duration.ofSeconds(5))
-                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
+                .shouldBe(visible)
+                .shouldHave(text("Неверные данные для входа"));
     }
 
     @Test
     void shouldNotLoginWithWrongPassword() {
-        // Регистрируем активного пользователя
-        RegistrationDto validUser = new RegistrationDto("vasya", "qwerty123", "active");
+        RegistrationDto validUser = DataHelper.getActiveUser();
         ApiHelper.registerUser(validUser);
 
-        // Пытаемся войти с неверным паролем
         $("[data-test-id=login] input").setValue(validUser.getLogin());
-        $("[data-test-id=password] input").setValue("wrong_password");
+        $("[data-test-id=password] input").setValue(DataHelper.getInvalidPassword());
         $("[data-test-id=action-login]").click();
 
-        // Проверяем ошибку
         $("[data-test-id=error-notification]")
-                .shouldBe(visible, Duration.ofSeconds(5))
-                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
+                .shouldBe(visible)
+                .shouldHave(text("Неверные данные для входа"));
     }
 }
