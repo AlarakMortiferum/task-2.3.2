@@ -13,7 +13,6 @@ public class LoginTest {
 
     @BeforeEach
     void setup() {
-        Configuration.headless = true;
         open("http://localhost:9999");
     }
 
