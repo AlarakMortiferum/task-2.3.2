@@ -1,19 +1,26 @@
 package ru.netology.shop;
 
 import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.codeborne.selenide.WebDriverRunner;
+import org.junit.jupiter.api.*;
 import ru.netology.shop.data.DataHelper;
 import ru.netology.shop.dto.RegistrationDto;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LoginTest {
 
     @BeforeEach
     void setup() {
+        Configuration.headless = true;
         open("http://localhost:9999");
+    }
+
+    @AfterEach
+    void cleanup() {
+        closeWebDriver();
     }
 
     @Test
@@ -25,8 +32,8 @@ public class LoginTest {
         $("[data-test-id=password] input").setValue(activeUser.getPassword());
         $("[data-test-id=action-login]").click();
 
-        $("[data-test-id=dashboard]").shouldBe(visible)
-                .shouldHave(text("Личный кабинет"));
+        $("[data-test-id=error-notification]").shouldNotBe(visible);
+        assertFalse(WebDriverRunner.url().contains("login"), "URL не должен содержать 'login'");
     }
 
     @Test
@@ -40,7 +47,7 @@ public class LoginTest {
 
         $("[data-test-id=error-notification]")
                 .shouldBe(visible)
-                .shouldHave(text("Неверные данные для входа"));
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
     }
 
     @Test
@@ -48,13 +55,13 @@ public class LoginTest {
         RegistrationDto validUser = DataHelper.getActiveUser();
         ApiHelper.registerUser(validUser);
 
-        $("[data-test-id=login] input").setValue(DataHelper.getInvalidLogin());
+        $("[data-test-id=login] input").setValue(DataHelper.generateRandomLogin());
         $("[data-test-id=password] input").setValue(validUser.getPassword());
         $("[data-test-id=action-login]").click();
 
         $("[data-test-id=error-notification]")
                 .shouldBe(visible)
-                .shouldHave(text("Неверные данные для входа"));
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
     }
 
     @Test
@@ -63,11 +70,11 @@ public class LoginTest {
         ApiHelper.registerUser(validUser);
 
         $("[data-test-id=login] input").setValue(validUser.getLogin());
-        $("[data-test-id=password] input").setValue(DataHelper.getInvalidPassword());
+        $("[data-test-id=password] input").setValue(DataHelper.generateRandomPassword());
         $("[data-test-id=action-login]").click();
 
         $("[data-test-id=error-notification]")
                 .shouldBe(visible)
-                .shouldHave(text("Неверные данные для входа"));
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
     }
 }

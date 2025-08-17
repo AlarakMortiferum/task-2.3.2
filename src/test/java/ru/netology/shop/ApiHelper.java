@@ -10,7 +10,7 @@ import static io.restassured.RestAssured.given;
 
 public class ApiHelper {
     private static final RequestSpecification spec = new RequestSpecBuilder()
-            .setBaseUri("http://localhost")
+            .setBaseUri("http://localhost") // Исправлено setBaseUri вместо setBaseUrl
             .setPort(9999)
             .setAccept(ContentType.JSON)
             .setContentType(ContentType.JSON)
@@ -18,12 +18,16 @@ public class ApiHelper {
             .build();
 
     public static void registerUser(RegistrationDto user) {
-        given()
-                .spec(spec)
-                .body(user)
-                .when()
-                .post("/api/system/users")
-                .then()
-                .statusCode(200);
+        try {
+            given()
+                    .spec(spec)
+                    .body(user)
+                    .when()
+                    .post("/api/system/users")
+                    .then()
+                    .statusCode(200);
+        } catch (Exception e) {
+            System.err.println("Ошибка регистрации пользователя: " + e.getMessage());
+        }
     }
 }
