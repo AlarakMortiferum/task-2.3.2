@@ -10,7 +10,7 @@ import static io.restassured.RestAssured.given;
 
 public class ApiHelper {
     private static final RequestSpecification spec = new RequestSpecBuilder()
-            .setBaseUri("http://localhost") // Исправлено setBaseUri вместо setBaseUrl
+            .setBaseUri("http://localhost")
             .setPort(9999)
             .setAccept(ContentType.JSON)
             .setContentType(ContentType.JSON)
